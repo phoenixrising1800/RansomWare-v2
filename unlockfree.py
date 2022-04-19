@@ -37,10 +37,13 @@ from Cryptodome.PublicKey import RSA
 from Cryptodome.Cipher import AES, PKCS1_OAEP
 
 def main():
+    print("Decrypting system...")
     priv = RSA.import_key(PRIVATE_KEY.encode())
 
     #1. Traverse system
-    sys_files = os.walk(os.getcwd())
+    #traverse_path = os.cwd()
+    traverse_path = os.path.expanduser('~')
+    sys_files = os.walk(traverse_path) 
     for root, dir, files in sys_files:
         for file in files:
             if '.encrypted' in file:
